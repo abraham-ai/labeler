@@ -8,7 +8,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType>({
   username: null,
   setUsername: () => {},
-);
+});
 
 
 export default AppContext;

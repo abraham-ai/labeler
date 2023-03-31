@@ -52,7 +52,11 @@ const LabelGUI = ({ collectionName, mediaType }: { collectionName: string, media
           {loading ? (
             <p>Loading image...</p>
           ) : (
+            <>
+            url: {image}
+            <br/>
             <img src={image} />
+            </>
           )}
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>

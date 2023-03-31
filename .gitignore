@@ -2,6 +2,8 @@
 
 .env
 data.csv
+public/highlights
+public/highlights
 
 # dependencies
 /node_modules
