@@ -1,21 +1,34 @@
 import Head from 'next/head'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react';
 import { Button } from 'antd'
 
+const BUFFER_SIZE = 200;
+
 const LabelGUI = ({ collectionName, mediaType }: { collectionName: string, mediaType: string }) => {
-  const [image, setImage] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
+  const [imageBuffer, setImageBuffer] = useState<string[]>([]);
+  const [currentImage, setCurrentImage] = useState<string>("");
+  const currentImageRef = useRef<string>("");
 
   useEffect(() => {
-    fetchImage();
     window.addEventListener('keydown', handleKeyPress);
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     }
   }, []);
 
-  const handleClick = async (rating: number, image: string) => {
-    const newRow = { name: 'user', image: image, rating }
+  useEffect(() => {
+    fillImageBuffer();
+  }, [imageBuffer]);
+
+  useEffect(() => {
+    if (imageBuffer.length > 0) {
+      setCurrentImage(imageBuffer[0]);
+      currentImageRef.current = imageBuffer[0];
+    }
+  }, [imageBuffer]);
+
+  const handleClick = async (rating: number, labeledImage: string) => {
+    const newRow = { name: 'user', image: labeledImage, rating }
     const res = await fetch('/api/label', {
       method: 'POST',
       headers: {
@@ -23,23 +36,28 @@ const LabelGUI = ({ collectionName, mediaType }: { collectionName: string, media
       },
       body: JSON.stringify(newRow),
     });
-    fetchImage();
+    setImageBuffer((prevBuffer) => prevBuffer.slice(1));
   }
 
   const handleKeyPress = (event: KeyboardEvent) => {
     const key = event.key;
     if (key >= '1' && key <= '5') {
-      handleClick(parseInt(key), image);
+      handleClick(parseInt(key), currentImageRef.current);
     }
   }
 
-  const fetchImage = async () => {
+  const fillImageBuffer = async () => {
+    if (imageBuffer.length > BUFFER_SIZE) return;
     const res = await fetch('/api/image');
     const data = await res.json();
-    setImage(data.imagePath);
-    setLoading(false);
+    const img = new Image();
+    img.onload = () => {
+      if (imageBuffer.length > BUFFER_SIZE) return;
+      setImageBuffer((prevBuffer) => [...prevBuffer, img.src]);
+    };
+    img.src = data.imagePath;
   };
-
+  
   return (
     <div className="container">
       <Head>
@@ -49,28 +67,33 @@ const LabelGUI = ({ collectionName, mediaType }: { collectionName: string, media
 
       <main>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          {loading ? (
-            <p>Loading image...</p>
-          ) : (
-            <>
-            url: {image}
-            <br/>
-            <img src={image} />
-            </>
-          )}
+          {/* <ul>
+            <b>{imageBuffer.length} :: {currentImage}</b>
+            {imageBuffer.map((image, index) => (
+              <li key={index}>{image}</li>
+            ))}
+          </ul>
+          <br/> */}
+          <ul>
+            {imageBuffer.map((image, index) => (
+              <img key={index} style={{display: "none"}} src={image} />
+            ))}
+          </ul>
+          <br/>
+          <img src={currentImage} height={window.innerHeight * 0.9} />          
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
           {[1, 2, 3, 4, 5].map((num) => (
             <Button 
               key={num} 
-              size="large" style={{ margin: '0 1rem' }} onClick={() => handleClick(num, image)}
+              size="large" style={{ margin: '0 1rem' }} onClick={() => handleClick(num, currentImage)}
             >
               {num}
             </Button>
           ))}
         </div>
+        <b>Current buffer length: {imageBuffer.length}</b>
       </main>
-
     </div>
   )
 }

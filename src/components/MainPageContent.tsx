@@ -45,7 +45,7 @@ const MainPageContent = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
+      {/* <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
         <div style={{ height: 32, margin: 16, background: 'rgba(255, 255, 255, 0.2)' }} />
         <Menu
           theme="dark"
@@ -55,7 +55,7 @@ const MainPageContent = () => {
           items={items}
           onClick={handleMenuClick}
         />
-      </Sider>
+      </Sider> */}
       <Layout className="site-layout">
         <Content style={{ margin: '0 16px', padding: "16px", background: colorBgContainer }}>       
           {activeItem === '1' && <LabelGUI collectionName="default" mediaType="image" />}
