@@ -8,8 +8,17 @@ const LabelGUI = ({ collectionName, mediaType }: { collectionName: string, media
   const [imageBuffer, setImageBuffer] = useState<string[]>([]);
   const [currentImage, setCurrentImage] = useState<string>("");
   const currentImageRef = useRef<string>("");
+  const [name, setName] = useState<string>("");
+  const nameRef = useRef<string>("");
 
   useEffect(() => {
+    console.log("the name is", name);
+    if (name == "") {
+      const promptName = prompt("Please enter your name");
+      setName(promptName || "anonymous");
+      nameRef.current = promptName || "anonymous";
+    }
+  
     window.addEventListener('keydown', handleKeyPress);
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
@@ -28,8 +37,9 @@ const LabelGUI = ({ collectionName, mediaType }: { collectionName: string, media
   }, [imageBuffer]);
 
   const handleClick = async (rating: number, labeledImage: string) => {
-    const newRow = { name: 'user', image: labeledImage, rating }
-    const res = await fetch('/api/label', {
+    const imageName = labeledImage.split('/').pop();
+    const newRow = { name: nameRef.current, image: imageName, rating }
+    await fetch('/api/label', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

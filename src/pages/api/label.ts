@@ -7,8 +7,8 @@ import { stringify } from 'csv-stringify';
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const { name, image, rating } = req.body
   try {
-    const newRow = { name, image, rating }
-    const filePath = path.join(process.cwd(), 'data.csv')
+    const newRow = { image, rating }
+    const filePath = path.join(process.cwd(), `results/data_${name}.csv`)
     const writeStream = fs.createWriteStream(filePath, { flags: 'a' })
     stringify([newRow], { header: false }).pipe(writeStream)
     return res.status(200).json({ success: true });

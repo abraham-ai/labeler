@@ -58,7 +58,11 @@ const MainPageContent = () => {
       </Sider> */}
       <Layout className="site-layout">
         <Content style={{ margin: '0 16px', padding: "16px", background: colorBgContainer }}>       
-          {activeItem === '1' && <LabelGUI collectionName="default" mediaType="image" />}
+          {activeItem === '1' && (
+            <React.StrictMode>
+              <LabelGUI collectionName="default" mediaType="image" />
+            </React.StrictMode>
+          )}
         </Content>
       </Layout>
     </Layout>
